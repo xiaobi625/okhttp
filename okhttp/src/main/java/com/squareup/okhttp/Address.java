@@ -19,6 +19,7 @@ import com.squareup.okhttp.internal.Util;
 import java.net.Proxy;
 import java.net.UnknownHostException;
 import java.util.List;
+import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -38,21 +39,25 @@ public final class Address {
   final Proxy proxy;
   final String uriHost;
   final int uriPort;
+  final SocketFactory socketFactory;
   final SSLSocketFactory sslSocketFactory;
   final HostnameVerifier hostnameVerifier;
   final OkAuthenticator authenticator;
   final List<String> transports;
 
-  public Address(String uriHost, int uriPort, SSLSocketFactory sslSocketFactory,
-      HostnameVerifier hostnameVerifier, OkAuthenticator authenticator, Proxy proxy,
-      List<String> transports) throws UnknownHostException {
+  public Address(String uriHost, int uriPort, SocketFactory socketFactory,
+      SSLSocketFactory sslSocketFactory, HostnameVerifier hostnameVerifier,
+      OkAuthenticator authenticator, Proxy proxy, List<String> transports)
+      throws UnknownHostException {
     if (uriHost == null) throw new NullPointerException("uriHost == null");
     if (uriPort <= 0) throw new IllegalArgumentException("uriPort <= 0: " + uriPort);
+    if (socketFactory == null) throw new IllegalArgumentException("socketFactory == null");
     if (authenticator == null) throw new IllegalArgumentException("authenticator == null");
     if (transports == null) throw new IllegalArgumentException("transports == null");
     this.proxy = proxy;
     this.uriHost = uriHost;
     this.uriPort = uriPort;
+    this.socketFactory = socketFactory;
     this.sslSocketFactory = sslSocketFactory;
     this.hostnameVerifier = hostnameVerifier;
     this.authenticator = authenticator;
@@ -70,6 +75,11 @@ public final class Address {
    */
   public int getUriPort() {
     return uriPort;
+  }
+
+  /** Returns the socket factory for new connections. */
+  public SocketFactory getSocketFactory() {
+    return socketFactory;
   }
 
   /**

@@ -33,6 +33,7 @@ import java.net.URLStreamHandlerFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -49,6 +50,7 @@ public final class OkHttpClient implements URLStreamHandlerFactory {
   private ProxySelector proxySelector;
   private CookieHandler cookieHandler;
   private ResponseCache responseCache;
+  private SocketFactory socketFactory;
   private SSLSocketFactory sslSocketFactory;
   private HostnameVerifier hostnameVerifier;
   private OkAuthenticator authenticator;
@@ -187,6 +189,21 @@ public final class OkHttpClient implements URLStreamHandlerFactory {
     } else {
       return null;
     }
+  }
+
+  /**
+   * Sets the socket factory used to create connections.
+   *
+   * <p>If unset, the {@link SocketFactory#getDefault() system-wide default} socket factory will be
+   * used.
+   */
+  public OkHttpClient setSocketFactory(SocketFactory socketFactory) {
+    this.socketFactory = socketFactory;
+    return this;
+  }
+
+  public SocketFactory getSocketFactory() {
+    return socketFactory;
   }
 
   /**
@@ -359,6 +376,7 @@ public final class OkHttpClient implements URLStreamHandlerFactory {
     result.proxySelector = proxySelector != null ? proxySelector : ProxySelector.getDefault();
     result.cookieHandler = cookieHandler != null ? cookieHandler : CookieHandler.getDefault();
     result.responseCache = responseCache != null ? responseCache : ResponseCache.getDefault();
+    result.socketFactory = socketFactory != null ? socketFactory : SocketFactory.getDefault();
     result.sslSocketFactory = sslSocketFactory != null
         ? sslSocketFactory
         : HttpsURLConnection.getDefaultSSLSocketFactory();

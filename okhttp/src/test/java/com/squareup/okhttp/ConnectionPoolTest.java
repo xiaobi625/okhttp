@@ -27,6 +27,7 @@ import java.net.Proxy;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
+import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 import org.junit.After;
 import org.junit.Before;
@@ -69,16 +70,18 @@ public final class ConnectionPoolTest {
   private Connection spdyB;
 
   @Before public void setUp() throws Exception {
+    SocketFactory socketFactory = SocketFactory.getDefault();
+
     spdyServer.useHttps(sslContext.getSocketFactory(), false);
 
     httpServer.play();
-    httpAddress = new Address(httpServer.getHostName(), httpServer.getPort(), null, null,
-        HttpAuthenticator.SYSTEM_DEFAULT, null, Arrays.asList("spdy/3", "http/1.1"));
+    httpAddress = new Address(httpServer.getHostName(), httpServer.getPort(), socketFactory, null,
+        null, HttpAuthenticator.SYSTEM_DEFAULT, null, Arrays.asList("spdy/3", "http/1.1"));
     httpSocketAddress = new InetSocketAddress(InetAddress.getByName(httpServer.getHostName()),
         httpServer.getPort());
 
     spdyServer.play();
-    spdyAddress = new Address(spdyServer.getHostName(), spdyServer.getPort(),
+    spdyAddress = new Address(spdyServer.getHostName(), spdyServer.getPort(), socketFactory,
         sslContext.getSocketFactory(), new RecordingHostnameVerifier(),
         HttpAuthenticator.SYSTEM_DEFAULT, null, Arrays.asList("spdy/3", "http/1.1"));
     spdySocketAddress = new InetSocketAddress(InetAddress.getByName(spdyServer.getHostName()),

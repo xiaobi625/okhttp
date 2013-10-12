@@ -97,9 +97,15 @@ public final class Connection implements Closeable {
       throw new IllegalStateException("already connected");
     }
     connected = true;
-    socket = (route.proxy.type() != Proxy.Type.HTTP) ? new Socket(route.proxy) : new Socket();
-    Platform.get().connectSocket(socket, route.inetSocketAddress, connectTimeout);
+
+    if (route.proxy.type() != Proxy.Type.HTTP) {
+      socket = new Socket(route.proxy);
+    } else {
+      socket = route.address.socketFactory.createSocket();
+    }
+
     socket.setSoTimeout(readTimeout);
+    Platform.get().connectSocket(socket, route.inetSocketAddress, connectTimeout);
     in = socket.getInputStream();
     out = socket.getOutputStream();
 
